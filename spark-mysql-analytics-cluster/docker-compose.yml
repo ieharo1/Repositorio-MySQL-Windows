@@ -1,0 +1,53 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  spark-master:
+    image: bitnami/spark:3.5
+    environment:
+      - SPARK_MODE=master
+    ports:
+      - "7077:7077"
+      - "8080:8080"
+
+  spark-worker:
+    image: bitnami/spark:3.5
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+    depends_on:
+      - spark-master
+
+  generator:
+    build:
+      context: .
+      dockerfile: docker/generator.Dockerfile
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: sales
+      MYSQL_PASSWORD: salespass
+      MYSQL_DB: salesdb
+    depends_on:
+      - mysql
+
+  spark-job:
+    build:
+      context: .
+      dockerfile: docker/spark.Dockerfile
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: sales
+      MYSQL_PASSWORD: salespass
+      MYSQL_DB: salesdb
+    depends_on:
+      - spark-master
+      - mysql
+

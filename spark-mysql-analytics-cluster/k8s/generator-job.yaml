@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: sales-generator
+spec:
+  template:
+    metadata:
+      labels:
+        app: sales-generator
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: generator
+          image: sales-generator:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: MYSQL_HOST
+              value: mysql
+            - name: MYSQL_USER
+              value: sales
+            - name: MYSQL_PASSWORD
+              value: salespass
+            - name: MYSQL_DB
+              value: salesdb
+

@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: spark-sales-job
+spec:
+  template:
+    metadata:
+      labels:
+        app: spark-sales-job
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: spark-job
+          image: spark-sales-job:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: MYSQL_HOST
+              value: mysql
+            - name: MYSQL_USER
+              value: sales
+            - name: MYSQL_PASSWORD
+              value: salespass
+            - name: MYSQL_DB
+              value: salesdb
+
